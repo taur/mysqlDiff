@@ -1,11 +1,11 @@
 <?php
-/*	
-	PHP 4.4.2  sürümünde yazýldý ve denendi. Bu sýnýf mysql veri tabaný sunucusu üzerinde iþlem yapmayý kolaþtýrmak amacýyla yazýldý.
-	Gerekli veri tabaný hata ve kontrol kodlarýný her uygulamada tekrardan yazmaktansa bu sýnýfý kullanarak zaman kazanýlabilir.
-	
-	NOT:PHP5 ve daha üst bir sürüm kullanýyorsanýz bu sýnýf çalýþmayabilir.  Çünki php5 sürümünde sýnýflar konusunda köklü deðiþiklikler yapýldý.
-	
-	mustafa
+/**
+ * PHP 4.4.2  Written and tested in version. This class was written to facilitate operations on the mysql database server.
+ * You can save time by using this class rather than rewriting the necessary database error and control codes in each application.
+ *
+ * NOTE: PHP 5 If you are using a higher version, this class may not work.  Because radical changes were made to classes in the php5 version.
+ *
+ * mustafa
 */
 
 class db{
@@ -20,13 +20,13 @@ class db{
 	var $affectedRows;
 	var $numRows;
 	var $error;
-	var $charSet='utf8';
-	var $collate='utf8_turkish_ci';
-	
+	var $charSet='utf8mb4';
+	var $collate='utf8mb4_unicode_ci';
+
 	public function __construct(){
-		/*
-		 * eğer veritabanı bağlantı sabitleri tanımlandıysa
-		 * */
+		/**
+		 * if database connection constants are defined
+		 */
 		if(defined('_dbHost')!=null){
 			$this->host=constant('_dbHost');
 			$this->username=constant('_dbUser');
@@ -34,9 +34,9 @@ class db{
 			if(constant('_dbDatabase')!=null)
 				$this->database=constant('_dbDatabase');
 		}
-		
+
 	}
-	
+
 	function connect(){
 		if($this->connection=new mysqli($this->host,$this->username,$this->password)){
 			$this->query('set names "'.$this->charSet.'" collate "'.$this->collate.'"');
@@ -44,33 +44,33 @@ class db{
 				$this->query('set names "'.$this->charSet.'" collate "'.$this->collate.'"');
 				return true;
 			}
-			$this->error='Veri tabaný seçilemedi.';
+			$this->error='Database could not be selected.';
 			return false;
 		}
-		$this->error='Veri tabaný sunucusuna baðlanýlamadý.';return false;
+		$this->error='Could not connect to database server.';return false;
 	}
-	
+
 	function query($sql,$buffered=true){
 		$this->affectedRows=0;
 		$this->numRows=0;
 		if(!$this->connection && !$this->connect())	return false;
 		if(($buffered && $this->reader=$this->connection->query($sql)) ||
 			(!$buffered && $this->reader=$this->connection->query($sql))){
-				
-				if(gettype($this->reader)=='object') 
-					$this->numRows=$this->reader->num_rows; 
+
+				if(gettype($this->reader)=='object')
+					$this->numRows=$this->reader->num_rows;
 				else
 					$this->affectedRows=$this->connection->affected_rows;
-				
+
 			return true;
 		}
-		$this->error='Sorgu çalýþtýrýlamadý.';return false;
+		$this->error='Query failed.';return false;
 	}
-	
+
 	function unbufferedQuery($sql){
 		return $this->query($sql,false);
 	}
-	
+
 	function fetchObject(){
 		return $this->reader->fetch_object();
 	}
@@ -114,22 +114,22 @@ class db{
 		}
 		return false;
 	}
-	
-	/*
-	 * aşağıdakiler yeni metodlardır. 
-	 * üstekilerle değiştirilecektir zamanla
-	 * */
+
+	/**
+	 * The following are new methods.
+	 * will be replaced with the ones above over time
+	 */
 	public function fetch($sql,$style='object'){
 		return $this->fetchListByQuery($sql,$style='object');
 	}
 	public function fetchFirst($q){
 		return $this->fetchFirstRecord($q);
 	}
-	
+
 	public function escape($s,$strip=true){
-		
+
 		if(!$this->connection && !$this->connect())	return false;
-		if(!is_array($s)){		
+		if(!is_array($s)){
 			if($strip){
 				if(strpos($s,'\\\'')!==false || strpos($s,'\\"')!==false)
 					$s=stripslashes($s);
@@ -137,7 +137,7 @@ class db{
 			return $this->connection->real_escape_string($s);
 		}
 		else{
-			
+
 			if($strip){
 				foreach($s as $k=>$i)
 				if(strpos($i,'\\\'')!==false || strpos($i,'\\"')!==false)
@@ -145,9 +145,8 @@ class db{
 			}
 			foreach($s as $k=>$i)
 				$s[$k]=$this->connection->real_escape_string($i);
-				
+
 			return $s;
 		}
 	}
 }
-?>
