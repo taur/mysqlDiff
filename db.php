@@ -9,12 +9,12 @@
 */
 
 class db{
-	
+
 	var $host='localhost';
 	var $username='root';
-	var $password='root';
-	var $database='test';
-	
+	var $password='';
+	var $database='mysql';
+
 	var $connection;
 	var $reader;
 	var $affectedRows;
